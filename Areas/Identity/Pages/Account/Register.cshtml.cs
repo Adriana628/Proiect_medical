@@ -19,8 +19,8 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Proiect_medical.Data;
-using Proiect_medical.Models;
+using ProiectMedicalLibrary.Data;
+using ProiectMedicalLibrary.Models;
 
 namespace Proiect_medical.Areas.Identity.Pages.Account
 {

@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Proiect_medical.Data;
-using Proiect_medical.Models;
+using ProiectMedicalLibrary.Data;
+using ProiectMedicalLibrary.Models;
 
 namespace Proiect_medical.Controllers
 {

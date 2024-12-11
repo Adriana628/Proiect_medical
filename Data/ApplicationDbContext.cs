@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Proiect_medical.Models;
+using ProiectMedicalLibrary.Models;
 using System.Numerics;
 
-namespace Proiect_medical.Data
+namespace ProiectMedicalLibrary.Data
 {
     public class ApplicationDbContext : IdentityDbContext
     {

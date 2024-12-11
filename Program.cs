@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Proiect_medical.Data;
+using ProiectMedicalLibrary.Data;
 using Microsoft.AspNetCore.Identity;
-using Proiect_medical.Models;
+using ProiectMedicalLibrary.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +15,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>() // Add support for roles
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 

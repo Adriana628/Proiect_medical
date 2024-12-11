@@ -1,4 +1,4 @@
-﻿namespace Proiect_medical.Models
+﻿namespace ProiectMedicalLibrary.Models
 {
     public class Message
     {

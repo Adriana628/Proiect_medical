@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using ProiectMedicalLibrary.Data;
 using Proiect_medical.Models;
 
 namespace Proiect_medical.Controllers

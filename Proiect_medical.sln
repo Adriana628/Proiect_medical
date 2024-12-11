@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35514.174 d17.12
+VisualStudioVersion = 17.12.35514.174
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Proiect_medical", "Proiect_medical.csproj", "{3CE88DAB-32CF-4E4F-9441-A024E01B850E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Proiect_medicalAPI", "..\Proiect_medicalAPI\Proiect_medicalAPI.csproj", "{02CF90D2-24D8-434E-88F9-EF7A54DD3BF7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProiectMedicalLibrary", "..\ProiectMedicalLibrary\ProiectMedicalLibrary.csproj", "{7EACCB6C-7288-4EC2-A15C-72C0BC2C62C1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{3CE88DAB-32CF-4E4F-9441-A024E01B850E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3CE88DAB-32CF-4E4F-9441-A024E01B850E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3CE88DAB-32CF-4E4F-9441-A024E01B850E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02CF90D2-24D8-434E-88F9-EF7A54DD3BF7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02CF90D2-24D8-434E-88F9-EF7A54DD3BF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02CF90D2-24D8-434E-88F9-EF7A54DD3BF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02CF90D2-24D8-434E-88F9-EF7A54DD3BF7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7EACCB6C-7288-4EC2-A15C-72C0BC2C62C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7EACCB6C-7288-4EC2-A15C-72C0BC2C62C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7EACCB6C-7288-4EC2-A15C-72C0BC2C62C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7EACCB6C-7288-4EC2-A15C-72C0BC2C62C1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
