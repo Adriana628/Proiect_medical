@@ -47,7 +47,7 @@ namespace Proiect_medical.Areas.Identity.Pages.Account
             _logger = logger;
             _emailSender = emailSender;
 
-            Input = new InputModel(); // Inițializează Input
+            Input = new InputModel(); 
         }
 
         /// <summary>
@@ -74,8 +74,8 @@ namespace Proiect_medical.Areas.Identity.Pages.Account
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         /// 
-        public List<Specialization> Specializations { get; set; } = new(); // Inițializează lista
-                                                                           // Populată în OnGetAsync()
+        public List<Specialization> Specializations { get; set; } = new(); 
+                                                                           
         public class InputModel
         {
             /// <summary>
@@ -108,13 +108,13 @@ namespace Proiect_medical.Areas.Identity.Pages.Account
 
             [Required]
             [Display(Name = "Full Name")]
-            public string FullName { get; set; } // Numele complet al utilizatorului
+            public string FullName { get; set; } 
 
             [Required]
             [Display(Name = "Role")]
-            public string Role { get; set; } // Rolul utilizatorului ("Doctor" sau "Patient")
+            public string Role { get; set; } 
 
-            public int? SpecializationId { get; set; } // Câmp opțional pentru specializare
+            public int? SpecializationId { get; set; } 
             public IEnumerable<Specialization> Specializations { get; set; }
 
         }
@@ -128,9 +128,9 @@ namespace Proiect_medical.Areas.Identity.Pages.Account
             using (var scope = HttpContext.RequestServices.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                Specializations = await dbContext.Specializations.ToListAsync(); // Încarcă specializările
+                Specializations = await dbContext.Specializations.ToListAsync(); 
             }
-            Input = new InputModel(); // Asigură-te că Input este inițializat
+            Input = new InputModel(); 
         }
 
 

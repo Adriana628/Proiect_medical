@@ -9,7 +9,7 @@ using ProiectMedicalLibrary.Data;
 using ProiectMedicalLibrary.Models;
 namespace Proiect_medical.Controllers
 {
-    [Authorize] // Toți utilizatorii autentificați pot accesa controllerul
+    [Authorize] 
     public class DoctorsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -20,7 +20,7 @@ namespace Proiect_medical.Controllers
         }
 
         // GET: Doctors
-        [AllowAnonymous] // Permite accesul la această metodă pentru toți utilizatorii, inclusiv cei neautentificați
+        [AllowAnonymous] 
         public async Task<IActionResult> Index()
         {
             var applicationDbContext = _context.Doctors.Include(d => d.Specialization);
@@ -28,7 +28,7 @@ namespace Proiect_medical.Controllers
         }
 
         // GET: Doctors/Details/5
-        [AllowAnonymous] // Permite accesul la această metodă pentru toți utilizatorii
+        [AllowAnonymous] 
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -48,7 +48,7 @@ namespace Proiect_medical.Controllers
         }
 
         // GET: Doctors/Create
-        [Authorize(Roles = "Doctor")] // Doar doctorii pot crea noi înregistrări
+        [Authorize(Roles = "Doctor")] 
         public IActionResult Create()
         {
             ViewData["SpecializationId"] = new SelectList(_context.Specializations, "Id", "Id");
@@ -58,10 +58,10 @@ namespace Proiect_medical.Controllers
         // POST: Doctors/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Doctor")] // Doar doctorii pot crea noi înregistrări
+        [Authorize(Roles = "Doctor")] 
         public async Task<IActionResult> Create([Bind("Id,Name,Email,Phone,SpecializationId")] Doctor doctor)
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value; // Obține ID-ul utilizatorului conectat
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value; 
             doctor.UserId = userId;
 
             if (ModelState.IsValid)
@@ -74,7 +74,7 @@ namespace Proiect_medical.Controllers
         }
 
         // GET: Doctors/Edit/5
-        [Authorize(Roles = "Doctor")] // Doar doctorii pot edita propriile înregistrări
+        [Authorize(Roles = "Doctor")] 
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -91,7 +91,7 @@ namespace Proiect_medical.Controllers
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             if (doctor.UserId != userId)
             {
-                return Forbid(); // Doctorii pot edita doar propriile informații
+                return Forbid(); 
             }
 
             ViewData["SpecializationId"] = new SelectList(_context.Specializations, "Id", "Id", doctor.SpecializationId);
@@ -101,7 +101,7 @@ namespace Proiect_medical.Controllers
         // POST: Doctors/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Doctor")] // Doar doctorii pot edita propriile înregistrări
+        [Authorize(Roles = "Doctor")] 
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Email,Phone,SpecializationId")] Doctor doctor)
         {
             if (id != doctor.Id)
@@ -112,7 +112,7 @@ namespace Proiect_medical.Controllers
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             if (doctor.UserId != userId)
             {
-                return Forbid(); // Doctorii pot edita doar propriile informații
+                return Forbid(); 
             }
 
             if (ModelState.IsValid)
@@ -140,7 +140,7 @@ namespace Proiect_medical.Controllers
         }
 
         // GET: Doctors/Delete/5
-        [Authorize(Roles = "Doctor")] // Doar doctorii pot șterge propriile înregistrări
+        [Authorize(Roles = "Doctor")] 
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -155,7 +155,7 @@ namespace Proiect_medical.Controllers
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             if (doctor == null || doctor.UserId != userId)
             {
-                return Forbid(); // Doctorii pot șterge doar propriile înregistrări
+                return Forbid(); 
             }
 
             return View(doctor);
@@ -164,7 +164,7 @@ namespace Proiect_medical.Controllers
         // POST: Doctors/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Doctor")] // Doar doctorii pot șterge propriile înregistrări
+        [Authorize(Roles = "Doctor")] 
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var doctor = await _context.Doctors.FindAsync(id);
@@ -173,7 +173,7 @@ namespace Proiect_medical.Controllers
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
                 if (doctor.UserId != userId)
                 {
-                    return Forbid(); // Doctorii pot șterge doar propriile înregistrări
+                    return Forbid(); 
                 }
 
                 _context.Doctors.Remove(doctor);

@@ -9,24 +9,18 @@ using ProiectMedicalLibrary.Data;
 using ProiectMedicalLibrary.Models;
 using System.Net.Http;
 using System.Net.Http.Json;
-using Newtonsoft.Json; // Pentru a converti obiectele din/în JSON
+using Newtonsoft.Json; 
 using System.Text;
 using Proiect_medical.Models;
 
 
 namespace Proiect_medical.Controllers
 {
-    [Authorize] // Restricționează accesul doar pentru utilizatorii autentificați
+    [Authorize] 
     public class AppointmentsController : Controller
     {
-        //private readonly ApplicationDbContext _context;
-
-        //public AppointmentsController(ApplicationDbContext context)
-        //{
-        //    _context = context;
-        //}
          private readonly HttpClient _httpClient;
-    private readonly string _baseUrl = "https://localhost:7108/api/Appointments"; // URL-ul API-ului
+        private readonly string _baseUrl = "https://localhost:7108/api/Appointments"; // URL-ul API-ului
 
     public AppointmentsController(HttpClient httpClient)
     {
@@ -34,7 +28,7 @@ namespace Proiect_medical.Controllers
     }
 
         // GET: Appointments
-        [Authorize] // Asigură-te că doar utilizatorii autentificați pot accesa
+        [Authorize]
         //public async Task<IActionResult> Index()
         //{
         //    var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
@@ -62,13 +56,13 @@ namespace Proiect_medical.Controllers
         //        return View(appointments);
         //    }
 
-        //    return Forbid(); // Orice alt utilizator primește Access Denied
+        //    return Forbid(); 
         //}
         public async Task<IActionResult> Index()
         {
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
-            // Obține programările de la API
+           
             var response = await _httpClient.GetAsync(_baseUrl);
 
             if (response.IsSuccessStatusCode)
@@ -76,7 +70,6 @@ namespace Proiect_medical.Controllers
                 var appointments = JsonConvert.DeserializeObject<List<Appointment>>(
                     await response.Content.ReadAsStringAsync());
 
-                // Filtrează programările în funcție de rolul utilizatorului
                 if (User.IsInRole("Patient"))
                 {
                     appointments = appointments
@@ -123,7 +116,7 @@ namespace Proiect_medical.Controllers
 
         //    if (appointment == null)
         //    {
-        //        return Forbid(); // Acces refuzat dacă nu este asociată utilizatorului
+        //        return Forbid(); 
         //    }
 
         //    return View(appointment);
@@ -131,7 +124,7 @@ namespace Proiect_medical.Controllers
 
         public async Task<IActionResult> Details(int? id)
         {
-            // Verifică dacă ID-ul este null
+           
             if (id == null)
             {
                 return View("Error", new ErrorViewModel { RequestId = "ID-ul programării este null." });
@@ -139,17 +132,17 @@ namespace Proiect_medical.Controllers
 
             try
             {
-                // Apelează API-ul pentru a obține detaliile programării
+              
                 var response = await _httpClient.GetAsync($"{_baseUrl}/{id.Value}");
                 if (!response.IsSuccessStatusCode)
                 {
                     return View("Error", new ErrorViewModel { RequestId = $"Programarea cu ID {id} nu a fost găsită." });
                 }
 
-                // Deserializarea obiectului programare
+                
                 var appointment = JsonConvert.DeserializeObject<Appointment>(await response.Content.ReadAsStringAsync());
 
-                // Verifică dacă programarea, doctorul și pacientul sunt complete
+                
                 if (appointment == null || appointment.Doctor == null || appointment.Patient == null)
                 {
                     Console.WriteLine($"Doctor sau pacient lipsă pentru programarea cu ID {id}");
@@ -159,25 +152,25 @@ namespace Proiect_medical.Controllers
                     });
                 }
 
-                // Obține userId-ul utilizatorului conectat
+               
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-                // Verifică dacă utilizatorul are acces la programare
+                
                 if ((User.IsInRole("Patient") && appointment.Patient?.UserId != userId) ||
                     (User.IsInRole("Doctor") && appointment.Doctor?.UserId != userId))
                 {
                     return Forbid(); // Acces interzis
                 }
 
-                // Returnează vizualizarea cu detaliile programării
+               
                 return View(appointment);
             }
             catch (Exception ex)
             {
-                // Logare pentru debugging
+              
                 Console.WriteLine($"Eroare la obținerea detaliilor pentru programarea cu ID {id}: {ex.Message}");
 
-                // Returnează pagina de eroare cu detalii
+                
                 return View("Error", new ErrorViewModel
                 {
                     RequestId = $"Eroare internă la obținerea detaliilor programării: {ex.Message}"
@@ -216,7 +209,7 @@ namespace Proiect_medical.Controllers
         //}
 
         // GET: Appointments/Create
-        //[Authorize(Roles = "Doctor")] // Doar doctorii pot crea programări
+        //[Authorize(Roles = "Doctor")] 
         //public IActionResult Create()
         //{
         //    ViewData["PatientId"] = new SelectList(_context.Patients, "Id", "Name");
@@ -228,7 +221,7 @@ namespace Proiect_medical.Controllers
         //[Authorize(Roles = "Patient")]
         //public IActionResult Create()
         //{
-        //    ViewData["DoctorId"] = new SelectList(_context.Doctors, "Id", "Name"); // Select doctor
+        //    ViewData["DoctorId"] = new SelectList(_context.Doctors, "Id", "Name"); 
         //    return View();
         //}
 
@@ -237,7 +230,7 @@ namespace Proiect_medical.Controllers
         {
             if (User.IsInRole("Doctor"))
             {
-                // Obține lista de pacienți pentru doctori
+                
                 var response = await _httpClient.GetAsync("https://localhost:7108/api/Patients");
                 if (response.IsSuccessStatusCode)
                 {
@@ -251,7 +244,7 @@ namespace Proiect_medical.Controllers
             }
             else if (User.IsInRole("Patient"))
             {
-                // Obține lista de doctori pentru pacienți
+               
                 var response = await _httpClient.GetAsync("https://localhost:7108/api/Doctors");
                 if (response.IsSuccessStatusCode)
                 {
@@ -289,7 +282,7 @@ namespace Proiect_medical.Controllers
         //        return Forbid();
         //    }
 
-        //    appointment.PatientId = patient.Id; // Asociază programarea cu pacientul conectat
+        //    appointment.PatientId = patient.Id;
 
         //    if (ModelState.IsValid)
         //    {
@@ -309,7 +302,7 @@ namespace Proiect_medical.Controllers
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            // Asociază medicul conectat cu programarea
+           
             if (User.IsInRole("Doctor"))
             {
                 var doctorResponse = await _httpClient.GetAsync("https://localhost:7108/api/Doctors");
@@ -328,7 +321,7 @@ namespace Proiect_medical.Controllers
                 }
             }
 
-            // Creează programarea folosind API-ul
+           
             var json = JsonConvert.SerializeObject(appointment);
             var response = await _httpClient.PostAsync(
                 _baseUrl,
@@ -352,7 +345,7 @@ namespace Proiect_medical.Controllers
         // POST: Appointments/Create
         //[HttpPost]
         //[ValidateAntiForgeryToken]
-        //[Authorize(Roles = "Doctor")] // Doar doctorii pot crea programări
+        //[Authorize(Roles = "Doctor")] 
         //public async Task<IActionResult> Create([Bind("Id,Date,Notes,PatientId")] Appointment appointment)
         //{
         //    var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
@@ -380,7 +373,7 @@ namespace Proiect_medical.Controllers
 
         //[HttpPost]
         //[ValidateAntiForgeryToken]
-        //[Authorize(Roles = "Doctor")] // Doar doctorii pot crea programări
+        //[Authorize(Roles = "Doctor")] 
         //public async Task<IActionResult> Create([Bind("Id,Date,Notes,PatientId")] Appointment appointment)
         //{
         //    var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
@@ -430,7 +423,7 @@ namespace Proiect_medical.Controllers
                 return NotFound();
             }
 
-            // Obține programarea de la API
+            
             var response = await _httpClient.GetAsync($"{_baseUrl}/{id.Value}");
             if (!response.IsSuccessStatusCode)
             {
@@ -439,7 +432,7 @@ namespace Proiect_medical.Controllers
 
             var appointment = JsonConvert.DeserializeObject<Appointment>(await response.Content.ReadAsStringAsync());
 
-            // Obține lista doctorilor
+            
             var doctorResponse = await _httpClient.GetAsync("https://localhost:7108/api/Doctors");
             if (doctorResponse.IsSuccessStatusCode)
             {
@@ -447,7 +440,7 @@ namespace Proiect_medical.Controllers
                 ViewData["DoctorId"] = new SelectList(doctors, "Id", "Name", appointment.DoctorId);
             }
 
-            // Obține lista pacienților
+        
             var patientResponse = await _httpClient.GetAsync("https://localhost:7108/api/Patients");
             if (patientResponse.IsSuccessStatusCode)
             {

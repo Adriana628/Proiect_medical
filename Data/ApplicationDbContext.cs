@@ -9,7 +9,6 @@ namespace ProiectMedicalLibrary.Data
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
-        // Definirea DbSet-urilor pentru fiecare entitate
         public DbSet<Patient> Patients { get; set; }
         public DbSet<Doctor> Doctors { get; set; }
         public DbSet<Appointment> Appointments { get; set; }

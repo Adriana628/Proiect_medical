@@ -10,7 +10,7 @@ using ProiectMedicalLibrary.Models;
 
 namespace Proiect_medical.Controllers
 {
-    [Authorize] // Restricționează accesul doar utilizatorilor autentificați
+    [Authorize] 
     public class PatientsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -21,12 +21,11 @@ namespace Proiect_medical.Controllers
         }
 
         // GET: Patients
-        [Authorize(Roles = "Doctor")] // Doar doctorii pot accesa această metodă
+        [Authorize(Roles = "Doctor")] 
         public async Task<IActionResult> Index()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            // Doctorul vede doar pacienții asociați programărilor lor
             var patients = await _context.Patients
                 .Include(p => p.Appointments)
                 .Where(p => p.Appointments.Any(a => a.Doctor.UserId == userId))
@@ -36,12 +35,11 @@ namespace Proiect_medical.Controllers
         }
 
         // GET: Patients/MyDetails
-        [Authorize(Roles = "Patient")] // Doar pacienții pot accesa această metodă
+        [Authorize(Roles = "Patient")] 
         public async Task<IActionResult> MyDetails()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            // Pacientul își vede doar propriile informații
             var patient = await _context.Patients
                 .FirstOrDefaultAsync(p => p.UserId == userId);
 
@@ -50,11 +48,11 @@ namespace Proiect_medical.Controllers
                 return NotFound();
             }
 
-            return View("Details", patient); // Folosește aceeași pagină de detalii
+            return View("Details", patient); 
         }
 
         // GET: Patients/Details/5
-        [Authorize(Roles = "Doctor,Patient")] // Ambele roluri pot accesa detalii
+        [Authorize(Roles = "Doctor,Patient")] 
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -64,7 +62,7 @@ namespace Proiect_medical.Controllers
 
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            // Restricționează accesul la detalii:
+            
             var patient = await _context.Patients
                 .FirstOrDefaultAsync(m =>
                     m.Id == id && (
@@ -74,14 +72,14 @@ namespace Proiect_medical.Controllers
 
             if (patient == null)
             {
-                return Forbid(); // Interzice accesul dacă nu se potrivește logica
+                return Forbid(); 
             }
 
             return View(patient);
         }
 
         // GET: Patients/Create
-        [Authorize(Roles = "Doctor")] // Doar doctorii pot crea pacienți
+        [Authorize(Roles = "Doctor")] 
         public IActionResult Create()
         {
             return View();
@@ -90,7 +88,7 @@ namespace Proiect_medical.Controllers
         // POST: Patients/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Doctor")] // Doar doctorii pot crea pacienți
+        [Authorize(Roles = "Doctor")] 
         public async Task<IActionResult> Create([Bind("Id,Name,Email,Phone")] Patient patient)
         {
             if (ModelState.IsValid)
@@ -103,7 +101,7 @@ namespace Proiect_medical.Controllers
         }
 
         // GET: Patients/Edit/5
-        [Authorize(Roles = "Doctor,Patient")] // Doar doctorii și pacientul însuși pot edita
+        [Authorize(Roles = "Doctor,Patient")] 
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -113,7 +111,7 @@ namespace Proiect_medical.Controllers
 
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            // Restricționează accesul la editare:
+           
             var patient = await _context.Patients
                 .FirstOrDefaultAsync(p =>
                     p.Id == id && (
@@ -132,7 +130,7 @@ namespace Proiect_medical.Controllers
         // POST: Patients/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Doctor,Patient")] // Doar doctorii și pacientul însuși pot edita
+        [Authorize(Roles = "Doctor,Patient")] 
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Email,Phone")] Patient patient)
         {
             if (id != patient.Id)
@@ -142,7 +140,7 @@ namespace Proiect_medical.Controllers
 
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            // Asigură-te că doar doctorul asociat sau pacientul însuși poate edita
+            
             var existingPatient = await _context.Patients
                 .FirstOrDefaultAsync(p =>
                     p.Id == id && (
