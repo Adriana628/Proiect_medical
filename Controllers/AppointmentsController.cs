@@ -297,55 +297,102 @@ namespace Proiect_medical.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Patient")]
-        public async Task<IActionResult> Create([Bind("Id,Date,Notes,DoctorId")] Appointment appointment)
+
+        public async Task<IActionResult> Create([Bind("Date,Notes,DoctorId")] Appointment appointment, string TimeSlot)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            // Asociază pacientul conectat cu programarea
-            var patientResponse = await _httpClient.GetAsync("https://localhost:7108/api/Patients");
-            if (patientResponse.IsSuccessStatusCode)
+            if (string.IsNullOrEmpty(userId))
             {
-                var patients = JsonConvert.DeserializeObject<List<Patient>>(await patientResponse.Content.ReadAsStringAsync());
-                var patient = patients.FirstOrDefault(p => p.UserId == userId);
+                return Unauthorized("⚠️ Utilizatorul nu este autentificat!");
+            }
 
-                if (patient == null)
-                {
-                    ModelState.AddModelError("", "Pacientul conectat nu a fost găsit.");
-                    // Reîncarcă lista doctorilor
-                    await LoadDoctorsInViewData();
-                    return View(appointment);
-                }
+            // Găsește pacientul logat
+            var response = await _httpClient.GetAsync("https://localhost:7108/api/Patients");
+            if (!response.IsSuccessStatusCode)
+            {
+                return BadRequest("⚠️ Nu s-au putut încărca pacienții.");
+            }
 
-                appointment.PatientId = patient.Id;
+            var patients = JsonConvert.DeserializeObject<List<Patient>>(await response.Content.ReadAsStringAsync());
+            var loggedInPatient = patients.FirstOrDefault(p => p.UserId == userId);
+
+            if (loggedInPatient == null)
+            {
+                return Unauthorized("⚠️ Pacientul logat nu există în sistem!");
+            }
+
+            // **NU mai setăm PatientId manual! API-ul îl va prelua singur**
+            // appointment.PatientId = loggedInPatient.Id;
+
+            // Concatenează data și ora
+            if (DateTime.TryParse($"{appointment.Date.ToShortDateString()} {TimeSlot}", out DateTime fullDateTime))
+            {
+                appointment.Date = fullDateTime;
             }
             else
             {
-                ModelState.AddModelError("", "Eroare la preluarea informațiilor despre pacient.");
-                // Reîncarcă lista doctorilor
-                await LoadDoctorsInViewData();
+                ModelState.AddModelError("TimeSlot", "Ora selectată este invalidă.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                await PopulateDropdowns(appointment.DoctorId);
                 return View(appointment);
             }
 
-            // Creează programarea folosind API-ul
+            // Trimite datele către API (FĂRĂ PatientId)
             var json = JsonConvert.SerializeObject(appointment);
-            var response = await _httpClient.PostAsync(
-                "https://localhost:7108/api/Appointments",
-                new StringContent(json, Encoding.UTF8, "application/json"));
+            var apiResponse = await _httpClient.PostAsync($"{_baseUrl}", new StringContent(json, Encoding.UTF8, "application/json"));
 
-            if (response.IsSuccessStatusCode)
+            if (apiResponse.IsSuccessStatusCode)
             {
                 return RedirectToAction(nameof(Index));
             }
-            else
-            {
-                ModelState.AddModelError("", "Eroare la salvarea programării.");
-            }
 
-            // Reîncarcă lista doctorilor
-            await LoadDoctorsInViewData();
+            ModelState.AddModelError("", "Eroare la crearea programării.");
+            await PopulateDropdowns(appointment.DoctorId);
             return View(appointment);
         }
+
+
+
+
+        private async Task PopulateDropdowns(int? selectedDoctorId = null)
+        {
+            // Cerere către API-ul pentru lista de doctori
+            var doctorResponse = await _httpClient.GetAsync("https://localhost:7108/api/Doctors");
+
+            if (doctorResponse.IsSuccessStatusCode)
+            {
+                var doctors = JsonConvert.DeserializeObject<List<Doctor>>(await doctorResponse.Content.ReadAsStringAsync());
+                if (doctors != null && doctors.Any())
+                {
+                    ViewData["DoctorId"] = new SelectList(doctors, "Id", "Name", selectedDoctorId);
+                }
+                else
+                {
+                    ViewData["DoctorId"] = new SelectList(new List<Doctor> { new Doctor { Id = 0, Name = "Nu sunt doctori disponibili" } }, "Id", "Name");
+                }
+            }
+            else
+            {
+                ViewData["DoctorId"] = new SelectList(new List<Doctor> { new Doctor { Id = 0, Name = "Eroare la încărcarea doctorilor" } }, "Id", "Name");
+            }
+
+            // Cerere către API-ul pentru lista de pacienți
+            var patientResponse = await _httpClient.GetAsync("https://localhost:7108/api/Patients");
+
+            if (patientResponse.IsSuccessStatusCode)
+            {
+                var patients = JsonConvert.DeserializeObject<List<Patient>>(await patientResponse.Content.ReadAsStringAsync());
+                ViewData["PatientId"] = new SelectList(patients, "Id", "Name");
+            }
+            else
+            {
+                ViewData["PatientId"] = new SelectList(new List<Patient>(), "Id", "Name");
+            }
+        }
+
 
         // Metodă pentru a încărca lista doctorilor
         private async Task LoadDoctorsInViewData()

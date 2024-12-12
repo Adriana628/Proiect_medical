@@ -20,12 +20,28 @@ namespace Proiect_medical.Controllers
         }
 
         // GET: Doctors
-        [AllowAnonymous] 
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Doctors.Include(d => d.Specialization);
-            return View(await applicationDbContext.ToListAsync());
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Obține ID-ul utilizatorului logat
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized(); // Dacă utilizatorul nu e logat, returnează 401
+            }
+
+            var doctor = await _context.Doctors
+                .Include(d => d.Specialization)
+                .FirstOrDefaultAsync(d => d.UserId == userId); // Selectează doar medicul logat
+
+            if (doctor == null)
+            {
+                return NotFound(); // Dacă medicul nu există, returnează 404
+            }
+
+            return View(new List<Doctor> { doctor }); // Returnează o listă cu un singur medic
         }
+
 
         // GET: Doctors/Details/5
         [AllowAnonymous] 

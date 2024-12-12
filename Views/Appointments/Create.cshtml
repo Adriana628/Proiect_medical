@@ -8,37 +8,35 @@
 
 <h4>Appointment</h4>
 <hr />
+
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Create">
+        <form id="appointmentForm">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
             <div class="form-group">
-                <label asp-for="Date" class="control-label"></label>
-                <input asp-for="Date" class="form-control" />
-                <span asp-validation-for="Date" class="text-danger"></span>
+                <label for="Date">Data</label>
+                <input type="date" id="Date" name="Date" class="form-control" required>
             </div>
+
+            <div class="form-group">
+                <label for="timeSlot">Alege ora:</label>
+                <select id="timeSlot" name="TimeSlot" class="form-control" required>
+                    <option value="">-- Selectează ora --</option>
+                </select>
+            </div>
+
             <div class="form-group">
                 <label asp-for="Notes" class="control-label"></label>
-                <input asp-for="Notes" class="form-control" />
+                <input asp-for="Notes" class="form-control" id="Notes" />
                 <span asp-validation-for="Notes" class="text-danger"></span>
             </div>
 
-            @if (User.IsInRole("Doctor"))
-            {
-                <div class="form-group">
-                    <label asp-for="PatientId" class="control-label"></label>
-                    <select asp-for="PatientId" class="form-control" asp-items="ViewBag.PatientId"></select>
-                    <span asp-validation-for="PatientId" class="text-danger"></span>
-                </div>
-            }
-            else if (User.IsInRole("Patient"))
-            {
-                <div class="form-group">
-                    <label asp-for="DoctorId" class="control-label"></label>
-                    <select asp-for="DoctorId" class="form-control" asp-items="ViewBag.DoctorId"></select>
-                    <span asp-validation-for="DoctorId" class="text-danger"></span>
-                </div>
-            }
+            <div class="form-group">
+                <label asp-for="DoctorId" class="control-label"></label>
+                <select asp-for="DoctorId" class="form-control" asp-items="ViewBag.DoctorId"></select>
+                <span asp-validation-for="DoctorId" class="text-danger"></span>
+            </div>
 
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
@@ -47,12 +45,80 @@
     </div>
 </div>
 
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", async function () {
+            var form = document.getElementById("appointmentForm");
+            var doctorSelect = document.getElementById("DoctorId");
+            var dateInput = document.getElementById("Date");
+            var timeSlotSelect = document.getElementById("timeSlot");
+
+            var userId = await getLoggedInUserId();
+
+            async function getLoggedInUserId() {
+                let response = await fetch("https://localhost:7108/api/Patients");
+                let patients = await response.json();
+                let user = patients.find(p => p.userId === localStorage.getItem("userId"));
+                return user ? user.id : null;
+            }
+
+            if (doctorSelect) doctorSelect.addEventListener("change", fetchAvailableSlots);
+            if (dateInput) dateInput.addEventListener("change", fetchAvailableSlots);
+
+            function fetchAvailableSlots() {
+                var doctorId = doctorSelect.value;
+                var date = dateInput.value;
+
+                if (!doctorId || !date) return;
+
+                fetch(`https://localhost:7108/api/Appointments/AvailableSlots/${doctorId}/${date}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        timeSlotSelect.innerHTML = "<option value=''>-- Selectează ora --</option>";
+
+                        data.forEach(slot => {
+                            var option = document.createElement("option");
+                            option.value = slot.time;
+                            option.textContent = slot.time;
+                            if (!slot.available) option.disabled = true;
+                            timeSlotSelect.appendChild(option);
+                        });
+                    });
+            }
+
+            form.addEventListener("submit", async function (event) {
+                event.preventDefault();
+
+                var doctorId = doctorSelect.value;
+                var date = dateInput.value;
+                var timeSlot = timeSlotSelect.value;
+                var notes = document.getElementById("Notes").value;
+
+                var fullDateTime = `${date}T${timeSlot}:00`;
+
+                let appointmentData = {
+                    DoctorId: parseInt(doctorId),
+                    Date: fullDateTime,
+                    Notes: notes,
+                    PatientId: await getLoggedInUserId()
+                };
+
+                fetch("https://localhost:7108/api/Appointments", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(appointmentData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert("✅ Programare creată cu succes!");
+                    window.location.href = "/Appointments";
+                })
+                .catch(error => alert("❌ Eroare la crearea programării!"));
+            });
+        });
+    </script>
+
+}
 <div>
     <a asp-action="Index">Back to List</a>
 </div>
-
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}
