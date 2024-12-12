@@ -1,0 +1,41 @@
+﻿@{
+    ViewData["Title"] = "Chat";
+}
+
+<h1>Chat</h1>
+
+<div>
+    @* <input type="text" id="messageInput" placeholder="Write your message..." /> *@
+    @* <button id="sendButton">Send</button> *@
+    @if (User.Identity.IsAuthenticated)
+    {
+        <input type="text" id="messageInput" placeholder="Write your message..." />
+        <button id="sendButton">Send</button>
+    }
+    else
+    {
+        <p>You must be logged in to send messages.</p>
+    }
+</div>
+<ul id="messagesList"></ul>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.4/signalr.min.js"></script>
+<script>
+    const connection = new signalR.HubConnectionBuilder().withUrl("https://localhost:7108/chatHub").build();
+
+    connection.on("ReceiveMessage", function (user, message) {
+        const li = document.createElement("li");
+        li.textContent = `${user}: ${message}`;
+        document.getElementById("messagesList").appendChild(li);
+    });
+
+    connection.start().then(() => {
+        document.getElementById("sendButton").disabled = false;
+    });
+
+    document.getElementById("sendButton").addEventListener("click", function () {
+        const message = document.getElementById("messageInput").value;
+        connection.invoke("SendMessage", "@User.Identity.Name", message).catch(err => console.error(err.toString()));
+        document.getElementById("messageInput").value = "";
+    });
+</script>
