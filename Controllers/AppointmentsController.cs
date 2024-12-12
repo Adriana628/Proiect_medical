@@ -298,43 +298,70 @@ namespace Proiect_medical.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Patient")]
-        public async Task<IActionResult> Create([Bind("Id,Date,Notes,DoctorId,PatientId")] Appointment appointment)
+        public async Task<IActionResult> Create([Bind("Id,Date,Notes,DoctorId")] Appointment appointment)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-           
-            if (User.IsInRole("Doctor"))
+            // Asociază pacientul conectat cu programarea
+            var patientResponse = await _httpClient.GetAsync("https://localhost:7108/api/Patients");
+            if (patientResponse.IsSuccessStatusCode)
             {
-                var doctorResponse = await _httpClient.GetAsync("https://localhost:7108/api/Doctors");
-                if (doctorResponse.IsSuccessStatusCode)
+                var patients = JsonConvert.DeserializeObject<List<Patient>>(await patientResponse.Content.ReadAsStringAsync());
+                var patient = patients.FirstOrDefault(p => p.UserId == userId);
+
+                if (patient == null)
                 {
-                    var doctors = JsonConvert.DeserializeObject<List<Doctor>>(await doctorResponse.Content.ReadAsStringAsync());
-                    var doctor = doctors.FirstOrDefault(d => d.UserId == userId);
-
-                    if (doctor == null)
-                    {
-                        ModelState.AddModelError("", "Medicul conectat nu a fost găsit.");
-                        return View(appointment);
-                    }
-
-                    appointment.DoctorId = doctor.Id;
+                    ModelState.AddModelError("", "Pacientul conectat nu a fost găsit.");
+                    // Reîncarcă lista doctorilor
+                    await LoadDoctorsInViewData();
+                    return View(appointment);
                 }
+
+                appointment.PatientId = patient.Id;
+            }
+            else
+            {
+                ModelState.AddModelError("", "Eroare la preluarea informațiilor despre pacient.");
+                // Reîncarcă lista doctorilor
+                await LoadDoctorsInViewData();
+                return View(appointment);
             }
 
-           
+            // Creează programarea folosind API-ul
             var json = JsonConvert.SerializeObject(appointment);
             var response = await _httpClient.PostAsync(
-                _baseUrl,
+                "https://localhost:7108/api/Appointments",
                 new StringContent(json, Encoding.UTF8, "application/json"));
 
             if (response.IsSuccessStatusCode)
             {
                 return RedirectToAction(nameof(Index));
             }
+            else
+            {
+                ModelState.AddModelError("", "Eroare la salvarea programării.");
+            }
 
-            ModelState.AddModelError("", "Eroare la salvarea programării.");
+            // Reîncarcă lista doctorilor
+            await LoadDoctorsInViewData();
             return View(appointment);
         }
+
+        // Metodă pentru a încărca lista doctorilor
+        private async Task LoadDoctorsInViewData()
+        {
+            var response = await _httpClient.GetAsync("https://localhost:7108/api/Doctors");
+            if (response.IsSuccessStatusCode)
+            {
+                var doctors = JsonConvert.DeserializeObject<List<Doctor>>(await response.Content.ReadAsStringAsync());
+                ViewData["DoctorId"] = new SelectList(doctors, "Id", "Name");
+            }
+            else
+            {
+                ViewData["DoctorId"] = new SelectList(new List<Doctor>(), "Id", "Name");
+            }
+        }
+
 
 
 
