@@ -17,7 +17,7 @@ namespace Proiect_medical.Controllers
             _context = context;
         }
 
-        // GET: Patients
+      
 
         [Authorize(Policy = "DoctorPolicy")]
         public async Task<IActionResult> Index()
@@ -52,7 +52,7 @@ namespace Proiect_medical.Controllers
             return View("Details", patient); 
         }
 
-        // GET: Patients/Details/5
+       
         [Authorize(Roles = "Doctor,Patient")]
         public async Task<IActionResult> Details(int id)
         {
@@ -101,13 +101,13 @@ namespace Proiect_medical.Controllers
             return View(patient);
         }
 
-        // GET: Patients/Edit/5
+        
         [Authorize(Roles = "Doctor,Patient")]
         public async Task<IActionResult> Edit(int id)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            // Găsim pacientul
+           
             var patient = await _context.Patients
                 .Include(p => p.Appointments)
                 .ThenInclude(a => a.Doctor)
@@ -185,7 +185,6 @@ namespace Proiect_medical.Controllers
 
 
 
-        // GET: Patients/Delete/5
         [Authorize(Policy = "DoctorPolicy")]
         public async Task<IActionResult> Delete(int? id)
         {

@@ -7,7 +7,7 @@ using Proiect_medical.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddSignalR();
@@ -15,9 +15,9 @@ builder.Services.AddSignalR();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Configure Identity with roles
+
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddRoles<IdentityRole>() // Add support for roles
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddAuthorization(options =>
@@ -30,13 +30,13 @@ builder.Services.AddHttpClient<NewsService>();
 
 var app = builder.Build();
 
-// Seed roles and users
+
 using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
 
-    // Create roles if they don't exist
+  
     string[] roles = { "Doctor", "Patient" };
     foreach (var role in roles)
     {
@@ -46,7 +46,7 @@ using (var scope = app.Services.CreateScope())
         }
     }
 
-    // Create a sample Doctor user
+  
     var doctorUser = await userManager.FindByEmailAsync("doctor@example.com");
     if (doctorUser == null)
     {
@@ -55,7 +55,7 @@ using (var scope = app.Services.CreateScope())
         await userManager.AddToRoleAsync(newDoctor, "Doctor");
     }
 
-    // Create a sample Patient user
+   
     var patientUser = await userManager.FindByEmailAsync("patient@example.com");
     if (patientUser == null)
     {
@@ -66,7 +66,7 @@ using (var scope = app.Services.CreateScope())
    
 }
 
-// Configure the HTTP request pipeline.
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -82,13 +82,13 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapRazorPages(); // Ensure Razor Pages are mapped
+app.MapRazorPages(); 
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-app.MapHub<ChatHub>("/Chat"); // Maparea Hub-ului
+app.MapHub<ChatHub>("/Chat"); 
 
 app.MapFallbackToFile("index.html");
 app.MapRazorPages();

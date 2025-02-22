@@ -10,9 +10,9 @@ namespace Proiect_medical.Models
         [Required(ErrorMessage = "Name is required")]
         public string Name { get; set; }
 
-        // Asociază pacientul cu un utilizator din Identity
-        public string UserId { get; set; } // ID-ul utilizatorului ASP.NET Identity
-        public IdentityUser User { get; set; } // Obiectul utilizatorului
+    
+        public string UserId { get; set; } 
+        public IdentityUser User { get; set; } 
         public ICollection<Appointment>? Appointments { get; set; }
 
         public int? SubscriptionId { get; set; }
