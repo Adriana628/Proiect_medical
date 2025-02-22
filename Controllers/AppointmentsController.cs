@@ -116,7 +116,14 @@ namespace Proiect_medical.Controllers
                 appointment.Date = appointmentDateTime;
             }
 
-          
+            bool doctorHasConflict = await _context.Appointments.AnyAsync(a =>
+            a.DoctorId == appointment.DoctorId && a.Date == appointment.Date);
+
+            if (doctorHasConflict)
+            {
+                ModelState.AddModelError("DoctorId", "Doctorul are deja o programare în acest interval orar!");
+            }
+
             bool patientHasConflict = await _context.Appointments.AnyAsync(a =>
                 a.PatientId == appointment.PatientId && a.Date == appointment.Date);
 
