@@ -1,36 +1,69 @@
 ﻿@model Proiect_medical.Models.Appointment
 
 @{
-    ViewData["Title"] = "Create Appointment";
+    ViewData["Title"] = "Creează o programare";
 }
 
-<h1>Create Appointment</h1>
+<h2>Creează o programare</h2>
 
 <hr />
+
 <div class="row">
     <div class="col-md-6">
-        <form asp-action="Create" method="post">
+        <form asp-action="Create">
             @Html.AntiForgeryToken()
+
             <div class="form-group">
-                <label asp-for="Date" class="control-label"></label>
-                <input asp-for="Date" class="form-control" />
+                <label for="Date">Data programării</label>
+                <input type="date" asp-for="Date" class="form-control" required />
                 <span asp-validation-for="Date" class="text-danger"></span>
             </div>
+
             <div class="form-group">
-                <label asp-for="Notes" class="control-label"></label>
-                <textarea asp-for="Notes" class="form-control"></textarea>
-                <span asp-validation-for="Notes" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DoctorId" class="control-label"></label>
-                <select asp-for="DoctorId" class="form-control" asp-items="ViewBag.DoctorId"></select>
+                <label for="DoctorId">Alege doctorul</label>
+                <select asp-for="DoctorId" asp-items="ViewBag.DoctorId" class="form-control"></select>
                 <span asp-validation-for="DoctorId" class="text-danger"></span>
             </div>
-            <button type="submit" class="btn btn-primary">Create</button>
+
+            <div class="form-group">
+                <label for="TimeSlot">Ora programării</label>
+                <select name="TimeSlot" class="form-control" required>
+                    <option value="">Selectează o oră</option>
+                    @foreach (var slot in ViewBag.TimeSlots)
+                    {
+                        <option value="@slot.Value">@slot.Text</option>
+                    }
+                </select>
+                <span class="text-danger" id="TimeSlotError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="Notes">Notițe</label>
+                <textarea asp-for="Notes" class="form-control"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Programează</button>
+            <a asp-action="Index" class="btn btn-secondary">Înapoi</a>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.querySelector("form").addEventListener("submit", function(event) {
+            var timeSlot = document.querySelector("select[name='TimeSlot']").value;
+            var errorSpan = document.getElementById("TimeSlotError");
+
+            if (!timeSlot) {
+                errorSpan.textContent = "Te rog selectează o oră.";
+                event.preventDefault();
+            } else {
+                errorSpan.textContent = "";
+            }
+        });
+    </script>
+}

@@ -1,0 +1,33 @@
+﻿@model IEnumerable<Proiect_medical.Models.Subscription>
+
+@{
+    ViewData["Title"] = "Abonamente Medicale";
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<h1 class="text-center">Abonamente Medicale</h1>
+<div class="row">
+    @foreach (var sub in Model)
+    {
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-header text-danger">
+                    <h3>@sub.Name</h3>
+                </div>
+                <div class="card-body">
+                    <h2><strong>@sub.Price Lei</strong></h2>
+                    <p><strong>Durată:</strong> @sub.DurationInMonths luni</p>
+                    <p>@sub.Description</p>
+                </div>
+                <div class="card-footer">
+                    <a asp-action="Subscribe" asp-route-id="@sub.Id" class="btn btn-primary">Abonează-te</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>

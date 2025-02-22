@@ -14,5 +14,9 @@ namespace Proiect_medical.Models
         public string UserId { get; set; } // ID-ul utilizatorului ASP.NET Identity
         public IdentityUser User { get; set; } // Obiectul utilizatorului
         public ICollection<Appointment>? Appointments { get; set; }
+
+        public int? SubscriptionId { get; set; }
+        public Subscription Subscription { get; set; }
+
     }
 }

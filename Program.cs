@@ -2,11 +2,15 @@
 using Proiect_medical.Data;
 using Microsoft.AspNetCore.Identity;
 using Proiect_medical.Models;
+using Proiect_medical.Hubs;
+using Proiect_medical.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
+builder.Services.AddSignalR();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -15,6 +19,14 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>() // Add support for roles
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("DoctorPolicy", policy => policy.RequireRole("Doctor"));
+    options.AddPolicy("PatientPolicy", policy => policy.RequireRole("Patient"));
+});
+
+builder.Services.AddHttpClient<NewsService>();
 
 var app = builder.Build();
 
@@ -61,6 +73,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
@@ -75,5 +88,8 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+app.MapHub<ChatHub>("/Chat"); // Maparea Hub-ului
+
 app.MapFallbackToFile("index.html");
+app.MapRazorPages();
 app.Run();

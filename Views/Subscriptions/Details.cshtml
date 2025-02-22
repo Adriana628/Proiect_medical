@@ -1,0 +1,21 @@
+﻿@model Proiect_medical.Models.Subscription
+
+@{
+    ViewData["Title"] = "Detalii Abonament";
+}
+
+<h1>@Model.Name</h1>
+<h2>@Model.Price Lei / @Model.DurationInMonths luni</h2>
+<p>@Model.Description</p>
+
+@if (!Model.IsActive)
+{
+    <p class="text-danger"><strong>Acest abonament nu mai este disponibil.</strong></p>
+}
+
+<a asp-action="Index" class="btn btn-secondary">Înapoi</a>
+
+@if (Model.IsActive)
+{
+    <a asp-action="Subscribe" asp-route-id="@Model.Id" class="btn btn-primary">Abonează-te</a>
+}

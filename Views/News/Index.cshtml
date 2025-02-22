@@ -1,0 +1,20 @@
+﻿@model Newtonsoft.Json.Linq.JArray
+
+<h1>Știri Medicale</h1>
+
+@if (Model != null && Model.Any())
+{
+    <ul>
+        @foreach (var item in Model)
+        {
+            <li>
+                <strong>Title:</strong> @(item["name"] != null ? item["name"].ToString() : "Titlu indisponibil") <br />
+                <strong>Source:</strong> <a href="@item["sourceUrl"]?.ToString()" target="_blank">@item["sourceUrl"]?.ToString()</a>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p>Nu s-au găsit știri medicale.</p>
+}

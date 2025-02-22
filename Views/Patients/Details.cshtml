@@ -19,7 +19,20 @@
       
     </dl>
 </div>
+@if (Model.Subscription != null)
+{
+    <h4>Abonament activ</h4>
+    <p><strong>Nume:</strong> @Model.Subscription.Name</p>
+    <p><strong>Preț:</strong> @Model.Subscription.Price Lei</p>
+    <p><strong>Durată:</strong> @Model.Subscription.DurationInMonths luni</p>
+}
+else
+{
+    <p class="text-danger"><strong>Nu ești abonat!</strong></p>
+}
+
+
+
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> 
 </div>

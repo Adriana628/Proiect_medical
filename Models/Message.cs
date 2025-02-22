@@ -2,21 +2,21 @@
 {
     public class Message
     {
-        public int Id { get; set; } // Cheia primară
-        public string? Content { get; set; } // Conținutul mesajului
-        public DateTime SentAt { get; set; } // Data și ora trimiterii mesajului
+        public int Id { get; set; } 
+        public string? Content { get; set; } 
+        public DateTime SentAt { get; set; } 
 
-        // Chei străine
-        public int? SenderDoctorId { get; set; } // ID-ul medicului care trimite mesajul (dacă este medic)
-        public Doctor? SenderDoctor { get; set; } // Relație many-to-one cu Doctor
+   
+        public int? SenderDoctorId { get; set; } 
+        public Doctor? SenderDoctor { get; set; } 
 
-        public int? SenderPatientId { get; set; } // ID-ul pacientului care trimite mesajul (dacă este pacient)
-        public Patient? SenderPatient { get; set; } // Relație many-to-one cu Patient
+        public int? SenderPatientId { get; set; } 
+        public Patient? SenderPatient { get; set; } 
 
-        public int? ReceiverDoctorId { get; set; } // ID-ul medicului care primește mesajul (dacă este medic)
-        public Doctor? ReceiverDoctor { get; set; } // Relație many-to-one cu Doctor
+        public int? ReceiverDoctorId { get; set; }
+        public Doctor? ReceiverDoctor { get; set; } 
 
-        public int? ReceiverPatientId { get; set; } // ID-ul pacientului care primește mesajul (dacă este pacient)
-        public Patient? ReceiverPatient { get; set; } // Relație many-to-one cu Patient
+        public int? ReceiverPatientId { get; set; } 
+        public Patient? ReceiverPatient { get; set; }
     }
 }

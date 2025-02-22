@@ -1,22 +1,109 @@
-html {
-  font-size: 14px;
+﻿html {
+    font-size: 14px;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    html {
+        font-size: 16px;
+    }
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
 html {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100%;
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
+    font-family: 'Poppins', sans-serif;
+    background-color: #f1f3f5; 
+    color: #495057; 
+}
+
+
+.navbar {
+    background-color: #FF99CC !important;
+    border-bottom: 2px solid #f8d7da;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 22px;
+}
+
+.navbar .nav-link {
+    font-size: 16px;
+    transition: 0.3s;
+    color: #6b7280 !important; 
+}
+
+    .navbar .nav-link:hover {
+        color: #f472b6 !important;
+    }
+
+/* 🔹 BUTOANE */
+.btn-custom {
+    background-color: #f4a2c6; 
+    color: white;
+    border-radius: 5px;
+    padding: 10px 15px;
+    transition: 0.3s;
+}
+
+    .btn-custom:hover {
+        background-color: #f472b6; 
+    }
+
+
+.table {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+    .table th {
+        background-color: #f472b6 !important;
+        color: white;
+    }
+
+    .table td {
+        border-bottom: 1px solid #ddd;
+    }
+
+.card {
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+
+footer {
+    background-color: #d35d91;
+    color: white;
+    text-align: center;
+    padding: 15px;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+.main-content {
+    flex: 1; /* Face ca conținutul să ocupe toată înălțimea disponibilă */
+}
+
+footer {
+    background-color: #d35d91;
+    color: white;
+    text-align: center;
+    padding: 15px;
+    margin-top: auto; /* Împinge footer-ul în jos */
 }

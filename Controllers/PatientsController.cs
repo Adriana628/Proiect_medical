@@ -1,16 +1,13 @@
-﻿using System;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Proiect_medical.Data;
 using Proiect_medical.Models;
+using System.Security.Claims;
 
 namespace Proiect_medical.Controllers
 {
-    [Authorize] // Restricționează accesul doar utilizatorilor autentificați
+    [Authorize]
     public class PatientsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -21,27 +18,29 @@ namespace Proiect_medical.Controllers
         }
 
         // GET: Patients
-        [Authorize(Roles = "Doctor")] // Doar doctorii pot accesa această metodă
+
+        [Authorize(Policy = "DoctorPolicy")]
         public async Task<IActionResult> Index()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            // Doctorul vede doar pacienții asociați programărilor lor
             var patients = await _context.Patients
                 .Include(p => p.Appointments)
+                    .ThenInclude(a => a.Doctor)
                 .Where(p => p.Appointments.Any(a => a.Doctor.UserId == userId))
                 .ToListAsync();
 
             return View(patients);
         }
 
+
         // GET: Patients/MyDetails
-        [Authorize(Roles = "Patient")] // Doar pacienții pot accesa această metodă
+        [Authorize(Roles = "Doctor,Patient")] 
         public async Task<IActionResult> MyDetails()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            // Pacientul își vede doar propriile informații
+           
             var patient = await _context.Patients
                 .FirstOrDefaultAsync(p => p.UserId == userId);
 
@@ -50,38 +49,38 @@ namespace Proiect_medical.Controllers
                 return NotFound();
             }
 
-            return View("Details", patient); // Folosește aceeași pagină de detalii
+            return View("Details", patient); 
         }
 
         // GET: Patients/Details/5
-        [Authorize(Roles = "Doctor,Patient")] // Ambele roluri pot accesa detalii
-        public async Task<IActionResult> Details(int? id)
+        [Authorize(Roles = "Doctor,Patient")]
+        public async Task<IActionResult> Details(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            if (userId is null)
+                return Forbid();
 
-            // Restricționează accesul la detalii:
             var patient = await _context.Patients
-                .FirstOrDefaultAsync(m =>
-                    m.Id == id && (
-                        (User.IsInRole("Doctor") && m.Appointments.Any(a => a.Doctor.UserId == userId)) ||
-                        (User.IsInRole("Patient") && m.UserId == userId)
-                    ));
+                .Include(p => p.Subscription)
+                .Include(p => p.Appointments)
+                .ThenInclude(a => a.Doctor)
+                .FirstOrDefaultAsync(p =>
+                    (User.IsInRole("Doctor") && p.Appointments.Any(a => a.Doctor.UserId == userId)) ||
+                    (User.IsInRole("Patient") && p.UserId == userId)
+                );
 
             if (patient == null)
             {
-                return Forbid(); // Interzice accesul dacă nu se potrivește logica
+                return Forbid();
             }
 
             return View(patient);
         }
 
+
         // GET: Patients/Create
-        [Authorize(Roles = "Doctor")] // Doar doctorii pot crea pacienți
+        [Authorize(Roles = "Doctor")] 
         public IActionResult Create()
         {
             return View();
@@ -90,7 +89,7 @@ namespace Proiect_medical.Controllers
         // POST: Patients/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Doctor")] // Doar doctorii pot crea pacienți
+        [Authorize(Roles = "Doctor")] 
         public async Task<IActionResult> Create([Bind("Id,Name,Email,Phone")] Patient patient)
         {
             if (ModelState.IsValid)
@@ -103,23 +102,20 @@ namespace Proiect_medical.Controllers
         }
 
         // GET: Patients/Edit/5
-        [Authorize(Roles = "Doctor,Patient")] // Doar doctorii și pacientul însuși pot edita
-        public async Task<IActionResult> Edit(int? id)
+        [Authorize(Roles = "Doctor,Patient")]
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            // Restricționează accesul la editare:
+            // Găsim pacientul
             var patient = await _context.Patients
+                .Include(p => p.Appointments)
+                .ThenInclude(a => a.Doctor)
                 .FirstOrDefaultAsync(p =>
-                    p.Id == id && (
-                        (User.IsInRole("Doctor") && p.Appointments.Any(a => a.Doctor.UserId == userId)) ||
-                        (User.IsInRole("Patient") && p.UserId == userId)
-                    ));
+                    p.Id == id &&
+                    ((User.IsInRole("Doctor") && p.Appointments.Any(a => a.Doctor.UserId == userId)) ||
+                    (User.IsInRole("Patient") && p.UserId == userId))
+                );
 
             if (patient == null)
             {
@@ -129,54 +125,117 @@ namespace Proiect_medical.Controllers
             return View(patient);
         }
 
-        // POST: Patients/Edit/5
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Doctor,Patient")] // Doar doctorii și pacientul însuși pot edita
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Email,Phone")] Patient patient)
+        [Authorize(Roles = "Doctor,Patient")]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Patient patient)
         {
+
             if (id != patient.Id)
             {
+                Console.WriteLine("❌ ID mismatch");
                 return NotFound();
             }
 
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            // Asigură-te că doar doctorul asociat sau pacientul însuși poate edita
             var existingPatient = await _context.Patients
+                .Include(p => p.Appointments)
+                .ThenInclude(a => a.Doctor)
                 .FirstOrDefaultAsync(p =>
-                    p.Id == id && (
-                        (User.IsInRole("Doctor") && p.Appointments.Any(a => a.Doctor.UserId == userId)) ||
-                        (User.IsInRole("Patient") && p.UserId == userId)
-                    ));
+                    p.Id == id &&
+                    ((User.IsInRole("Doctor") && p.Appointments.Any(a => a.Doctor.UserId == userId)) ||
+                    (User.IsInRole("Patient") && p.UserId == userId))
+                );
 
             if (existingPatient == null)
+            {
+                Console.WriteLine("Access denied to edit this patient");
+                return Forbid();
+            }
+
+            try
+            {
+                existingPatient.Name = patient.Name; 
+
+                Console.WriteLine("Updating patient in database...");
+                _context.Patients.Update(existingPatient);
+                await _context.SaveChangesAsync();
+                Console.WriteLine("Patient updated successfully!");
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                Console.WriteLine($" Database update error: {ex.Message}");
+                if (!PatientExists(patient.Id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+
+
+
+
+
+        // GET: Patients/Delete/5
+        [Authorize(Policy = "DoctorPolicy")]
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            var patient = await _context.Patients
+                .Include(p => p.Appointments)
+                .ThenInclude(a => a.Doctor)
+                .FirstOrDefaultAsync(p =>
+                    p.Id == id && p.Appointments.Any(a => a.Doctor.UserId == userId)
+                );
+
+            if (patient == null)
             {
                 return Forbid();
             }
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(patient);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!PatientExists(patient.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
             return View(patient);
         }
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        [Authorize(Policy = "DoctorPolicy")]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            var patient = await _context.Patients
+                .Include(p => p.Appointments)
+                .FirstOrDefaultAsync(p =>
+                    p.Id == id && p.Appointments.Any(a => a.Doctor.UserId == userId)
+                );
+
+            if (patient != null)
+            {
+                _context.Appointments.RemoveRange(patient.Appointments); 
+                _context.Patients.Remove(patient);
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                return Forbid();
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+
 
         private bool PatientExists(int id)
         {

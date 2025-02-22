@@ -2,15 +2,15 @@
 {
     public class Appointment
     {
-        public int Id { get; set; } // Cheia primară
+        public int Id { get; set; } 
         public DateTime Date { get; set; }
-        public string? Notes { get; set; } // Notițe despre consultație
+        public string? Notes { get; set; } 
 
-        // Chei străine
+       
         public int PatientId { get; set; }
-        public Patient? Patient { get; set; } // Relație many-to-one cu Patient
+        public Patient? Patient { get; set; } 
 
         public int DoctorId { get; set; }
-        public Doctor? Doctor { get; set; } // Relație many-to-one cu Doctor
+        public Doctor? Doctor { get; set; } 
     }
 }

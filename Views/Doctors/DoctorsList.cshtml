@@ -1,0 +1,30 @@
+﻿@model IEnumerable<Proiect_medical.Models.Doctor>
+
+@{
+    ViewData["Title"] = "Lista Doctorilor";
+}
+
+<h2 class="text-center">Lista Doctorilor</h2>
+<hr />
+<form method="get" asp-action="DoctorsList" class="mb-3">
+    <input type="text" name="searchString" class="form-control" placeholder="Caută doctori..." />
+    <button type="submit" class="btn btn-primary mt-2">Caută</button>
+</form>
+
+<table class="table table-bordered table-striped">
+    <thead class="table-primary">
+        <tr>
+            <th>Nume</th>
+            <th>Specializare</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var doctor in Model)
+        {
+            <tr>
+                <td>@doctor.Name</td>
+                <td>@(doctor.Specialization != null ? doctor.Specialization.Name : "Fără specializare")</td>
+            </tr>
+        }
+    </tbody>
+</table>

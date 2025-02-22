@@ -1,0 +1,17 @@
+﻿@{
+    ViewData["Title"] = "Chat";
+}
+
+<h2>Live Chat</h2>
+
+<div class="chat-box" style="border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: scroll;">
+    <ul id="messagesList"></ul>
+</div>
+
+<input type="text" id="messageInput" class="form-control mt-3" placeholder="Scrie un mesaj..." />
+<button id="sendButton" class="btn btn-primary mt-2">Trimite</button>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <script src="~/js/chat.js"></script>
+}
